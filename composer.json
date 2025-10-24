@@ -1,0 +1,20 @@
+{
+    "name": "rguezque/router-functions",
+    "description": "A simple router based in functions NO-OOP",
+    "type": "router",
+    "license": "MIT",
+    "autoload": {
+        "files": [
+            "src/router-functions.php",
+            "src/helpers.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Luis Rodríguez",
+            "email": "rguezque@gmail.com"
+        }
+    ],
+    "minimum-stability": "alpha",
+    "require": {}
+}
