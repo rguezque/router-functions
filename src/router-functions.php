@@ -113,15 +113,30 @@ function add_route(string $http_method, string $path, callable $controller): voi
 }
 
 /** Agrega una ruta de tipo de petición GET */
-function add_get_route(string $path, callable $controller) {add_route(HTTP_GET, $path, $controller);}
+function add_get_route(string $path, callable $controller)
+{
+    add_route(HTTP_GET, $path, $controller);
+}
 /** Agrega una ruta de tipo de petición POST */
-function add_post_route(string $path, callable $controller) {add_route(HTTP_POST, $path, $controller);}
+function add_post_route(string $path, callable $controller)
+{
+    add_route(HTTP_POST, $path, $controller);
+}
 /** Agrega una ruta de tipo de petición PUT */
-function add_put_route(string $path, callable $controller) {add_route(HTTP_PUT, $path, $controller);}
+function add_put_route(string $path, callable $controller)
+{
+    add_route(HTTP_PUT, $path, $controller);
+}
 /** Agrega una ruta de tipo de petición PATCH */
-function add_patch_route(string $path, callable $controller) {add_route(HTTP_PATCH, $path, $controller);}
+function add_patch_route(string $path, callable $controller)
+{
+    add_route(HTTP_PATCH, $path, $controller);
+}
 /** Agrega una ruta de tipo de petición DELETE */
-function add_delete_route(string $path, callable $controller) {add_route(HTTP_DELETE, $path, $controller);}
+function add_delete_route(string $path, callable $controller)
+{
+    add_route(HTTP_DELETE, $path, $controller);
+}
 
 /**
  * Inicia el router y despacha las solicitudes de rutas
@@ -134,8 +149,8 @@ function add_delete_route(string $path, callable $controller) {add_route(HTTP_DE
 function dispatch_router(string $http_request_method, string $http_request_uri): void
 {
     static $invoked;
-    if($invoked) return;
-    
+    if ($invoked) return;
+
     if ([] === $GLOBALS[ROUTER_NAMESPACE]) {
         send_json_response([
             'message' => 'Welcome to router-functions!',
@@ -235,7 +250,7 @@ function send_json_response(array $data, int $http_status = 200, array $http_hea
  */
 function fetch_view(string $template, array $data = []): string
 {
-    if('' !== get_views_directory()) {
+    if ('' !== get_views_directory()) {
         $template = rtrim(get_views_directory(), '/\\ ') . DIRECTORY_SEPARATOR . trim($template, '/\\ ');
     }
     if (!file_exists($template)) {
@@ -248,11 +263,13 @@ function fetch_view(string $template, array $data = []): string
     return ob_get_clean();
 }
 
-function set_views_directory(string $path): void {
+function set_views_directory(string $path): void
+{
     $GLOBALS[ROUTER_NAMESPACE]['views_directory'] = $path;
 }
 
-function get_views_directory(): string {
+function get_views_directory(): string
+{
     return $GLOBALS[ROUTER_NAMESPACE]['views_directory'] ?? '';
 }
 
@@ -403,7 +420,8 @@ function format_str_path(string $path): string
  * @param array<string, string> Configuraciones de CORS
  * @return void
  */
-function cors_config(array $cors_settings = []): void {
+function cors_config(array $cors_settings = []): void
+{
     $cors_default = [
         'origin' => '*',
         'methods' => 'GET, POST, PUT, DELETE, OPTIONS',
@@ -412,7 +430,7 @@ function cors_config(array $cors_settings = []): void {
     ];
     $cors = array_merge($cors_default, $cors_settings);
     // Si es una solicitud OPTIONS (pre-flight)
-    if('OPTIONS' === get_request_method()) {
+    if ('OPTIONS' === get_request_method()) {
         http_response_code(204); // No content
         header(sprintf('Access-Control-Allow-Origin: %s', $cors['origin']));
         header(sprintf('Access-Control-Allow-Methods: %s', $cors['methods']));
@@ -426,11 +444,12 @@ function cors_config(array $cors_settings = []): void {
     header(sprintf('Access-Control-Allow-Headers: %s', $cors['headers']));
 }
 
-function auto_container(mixed $dependency, array $args = []) {
-    if(!class_exists($dependency)) {
-        throw new InvalidArgumentException(sprintf('The class "%s" does not exists.', $dependency));
-    }
-    $reflex = new ReflectionClass($dependency);
-    $instance = $reflex->newInstanceArgs($args);
-    return $instance;
+/**
+ * Devuelve `true` si ya existe una sesión activa; o `false` en caso contrario.
+ * 
+ * @return bool
+ */
+function session_started(): bool
+{
+    return session_status() === PHP_SESSION_ACTIVE;
 }

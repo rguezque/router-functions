@@ -147,4 +147,4 @@ Las siguientes funciones permiten recuperar valores de una solicitud HTTP. Se es
 - `get_cookie(?string $key = null, mixed $default = null)`: Devuelve una variable de `$_COOKIE`.
 
 >[!IMPORTANT]
->No se incluye `$_SESSION` ya que existen funciones nativas para manejo de sesiones; a excepción de la asignación de variables de sesión manualmente.
+>No se incluye `$_SESSION` ya que existen funciones nativas para manejo de sesiones; a excepción de la asignación de variables de sesión manualmente. Aquí solo está disponible la función `session_started()` que devuelve `true` si ya hay una sesión activa, o `false` en caso contrario.
