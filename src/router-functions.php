@@ -6,10 +6,11 @@ namespace router_functions;
 
 use Closure;
 use Exception;
-use InvalidArgumentException;
-use ReflectionClass;
 use RuntimeException;
 use stdClass;
+
+use function router_helpers\get_request_method;
+use function router_helpers\send_json_response;
 
 define('HTTP_GET', 'GET');
 define('HTTP_POST', 'POST');
@@ -205,43 +206,6 @@ function route_to_regex(string $path): string
 }
 
 /**
- * Envía una respuesta desde el servidor
- * 
- * @param string $content Cuerpo de la respuesta
- * @param int $htpp_status Código númerico entero de estatus HTTP
- * @param array<string, string> $http_headers Definición de encabezados HTTP de la respuesta, de la forma `[clave => valor]`
- * @return void
- */
-function send_response(string $content, int $http_status = 200, array $http_headers = []): void
-{
-    http_response_code($http_status);
-
-    if (!headers_sent()) {
-        foreach ($http_headers as $name => $value) {
-            header("$name: $value");
-        }
-    }
-
-    echo $content;
-}
-
-/**
- * Envía una respuesta en formato JSON
- * 
- * @param array<string, mixed> $data Datos a ser codificados a JSON
- * @param int $http_status Código númerico entero de estatus HTTP
- * @param array<string, string> $http_headers Definición de encabezados HTTP de la respuesta, de la forma `[clave => valor]`
- * @param int $flag Opciones al codificar los datos
- * @return void
- */
-function send_json_response(array $data, int $http_status = 200, array $http_headers = [], int $flag = JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT): void
-{
-    $json = json_encode($data, $flag);
-    $headers = array_merge($http_headers, ['Content-Type' => 'application/json;charset=utf-8']);
-    send_response($json, $http_status, $headers);
-}
-
-/**
  * Recupera el contenido de una plantilla para ser renderizada
  * 
  * @param string $template Archivo de plantilla de vista
@@ -301,104 +265,6 @@ function get_all_routes(): array
 }
 
 /**
- * Devuelve una variable de $_GET por nombre; si no existe devuelve un valor default. 
- * Si no se define un nombre se devuelve todo el array $_GET
- * 
- * @param string $key Nombre de la variable
- * @param mixed $default Valor default a devolver si no existe la variable
- * @return mixed
- */
-function get_query(?string $key = null, mixed $default = null): mixed
-{
-    return get_php_global($_GET, $key, $default);
-}
-
-/**
- * Devuelve una variable de $_POST por nombre; si no existe devuelve un valor default. 
- * Si no se define un nombre se devuelve todo el array $_POST
- * 
- * @param string $key Nombre de la variable
- * @param mixed $default Valor default a devolver si no existe la variable
- * @return mixed
- */
-function get_post(?string $key = null, mixed $default = null)
-{
-    return get_php_global($_POST, $key, $default);
-}
-
-/**
- * Devuelve una variable de $_SERVER por nombre; si no existe devuelve un valor default. 
- * Si no se define un nombre se devuelve todo el array $_SERVER
- * 
- * @param string $key Nombre de la variable
- * @param mixed $default Valor default a devolver si no existe la variable
- * @return mixed
- */
-function get_server(?string $key = null, mixed $default = null)
-{
-    return get_php_global($_SERVER, $key, $default);
-}
-
-/**
- * Devuelve una variable de $_FILES por nombre; si no existe devuelve un valor default. 
- * Si no se define un nombre se devuelve todo el array $_FILES
- * 
- * @param string $key Nombre de la variable
- * @param mixed $default Valor default a devolver si no existe la variable
- * @return mixed
- */
-function get_files(?string $key = null, mixed $default = null)
-{
-    return get_php_global($_FILES, $key, $default);
-}
-
-/**
- * Devuelve una variable de $_COOKIE por nombre; si no existe devuelve un valor default. 
- * Si no se define un nombre se devuelve todo el array $_COOKIE
- * 
- * @param string $key Nombre de la variable
- * @param mixed $default Valor default a devolver si no existe la variable
- * @return mixed
- */
-function get_cookie(?string $key = null, mixed $default = null)
-{
-    return get_php_global($_COOKIE, $key, $default);
-}
-
-/**
- * Devuelve el actual método HTTP de una petición
- * 
- * @return string
- */
-function get_request_method(): string
-{
-    return get_server('REQUEST_METHOD');
-}
-
-/**
- * Devuelve la actual URI solicitada
- * 
- * @return string
- */
-function get_request_uri()
-{
-    return get_server('REQUEST_URI');
-}
-
-/**
- * Devuelve una variable de alguna de los globales PHP ($_GET, $_POST, $_SERVER, $_FILES, $_COOKIE)
- * 
- * @param array $global El array global solicitado
- * @param ?string $key El nombre de la variable a recuperar
- * @param mixed $default Valor default a devolver si la variable no existe
- * @return mixed
- */
-function get_php_global(array $global, ?string $key = null, mixed $default = null): mixed
-{
-    return is_null($key) ? $global : (isset($global[trim($key)]) ? $global[trim($key)] : $default);
-}
-
-/**
  * Formatea un string de ruta con la sintaxis requerida por el router
  * 
  * @param string $path Cadena de texto de la ruta
@@ -444,12 +310,4 @@ function cors_config(array $cors_settings = []): void
     header(sprintf('Access-Control-Allow-Headers: %s', $cors['headers']));
 }
 
-/**
- * Devuelve `true` si ya existe una sesión activa; o `false` en caso contrario.
- * 
- * @return bool
- */
-function session_started(): bool
-{
-    return session_status() === PHP_SESSION_ACTIVE;
-}
+
